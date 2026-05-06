@@ -1,0 +1,453 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .prd-wrap { padding: 1.5rem 0; }
+  .section { margin-bottom: 2rem; }
+  .sec-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+  h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .meta-pill { font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .pill-blue { background: #E6F1FB; color: #0C447C; }
+  .pill-teal { background: #E1F5EE; color: #085041; }
+  .pill-amber { background: #FAEEDA; color: #633806; }
+  @media (prefers-color-scheme: dark) {
+    .pill-blue { background: #0C447C; color: #B5D4F4; }
+    .pill-teal { background: #085041; color: #9FE1CB; }
+    .pill-amber { background: #633806; color: #FAC775; }
+  }
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { font-size: 13px; padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+  .tab:hover:not(.active) { background: var(--color-background-secondary); }
+  .pane { display: none; }
+  .pane.active { display: block; }
+  .tree { display: flex; flex-direction: column; gap: 10px; }
+  .tree-node { border-left: 2px solid var(--color-border-secondary); padding-left: 14px; }
+  .node-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .node-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+  .node-children { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .child-node { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; }
+  .child-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .child-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .grandchild-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+  .tag-blue { background: #E6F1FB; color: #185FA5; }
+  .tag-teal { background: #E1F5EE; color: #0F6E56; }
+  .tag-coral { background: #FAECE7; color: #993C1D; }
+  .tag-green { background: #EAF3DE; color: #3B6D11; }
+  .tag-purple { background: #EEEDFE; color: #534AB7; }
+  .tag-amber { background: #FAEEDA; color: #854F0B; }
+  @media (prefers-color-scheme: dark) {
+    .tag-blue { background: #0C447C; color: #B5D4F4; }
+    .tag-teal { background: #085041; color: #9FE1CB; }
+    .tag-coral { background: #712B13; color: #F5C4B3; }
+    .tag-green { background: #27500A; color: #C0DD97; }
+    .tag-purple { background: #3C3489; color: #CECBF6; }
+    .tag-amber { background: #633806; color: #FAC775; }
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .metric-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+  td { padding: 9px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--color-background-secondary); }
+  .status { font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500; white-space: nowrap; display: inline-block; }
+  .s-available { background: #EAF3DE; color: #3B6D11; }
+  .s-inuse { background: #E6F1FB; color: #185FA5; }
+  .s-recycled { background: #FAEEDA; color: #854F0B; }
+  .s-requested { background: #EEEDFE; color: #534AB7; }
+  @media (prefers-color-scheme: dark) {
+    .s-available { background: #27500A; color: #C0DD97; }
+    .s-inuse { background: #0C447C; color: #B5D4F4; }
+    .s-recycled { background: #633806; color: #FAC775; }
+    .s-requested { background: #3C3489; color: #CECBF6; }
+  }
+  .wh-int { font-size: 11px; color: #185FA5; font-weight: 500; }
+  .wh-ext { font-size: 11px; color: #0F6E56; font-weight: 500; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .filter-row select { font-size: 12px; padding: 5px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; }
+  .filter-label { font-size: 12px; color: var(--color-text-secondary); }
+  .req-btn { font-size: 11px; padding: 3px 8px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+  .req-btn:hover { background: var(--color-background-secondary); }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .flow-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .flow-box { flex: 1; min-width: 120px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .flow-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .flow-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+  .arrow { color: var(--color-text-tertiary); font-size: 14px; }
+  .user-story { background: var(--color-background-secondary); border-left: 2px solid #B5D4F4; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 8px 12px; margin-bottom: 8px; }
+  .story-role { font-size: 11px; font-weight: 500; color: #185FA5; margin-bottom: 2px; }
+  .story-text { font-size: 13px; color: var(--color-text-primary); line-height: 1.5; }
+  @media (prefers-color-scheme: dark) { .user-story { border-left-color: #378ADD; } .story-role { color: #85B7EB; } }
+</style>
+
+<div class="prd-wrap">
+  <h2 class="sr-only" style="position:absolute;left:-9999px">Event Asset Management System — Product Requirements Document</h2>
+
+  <h1>Event Asset Management System</h1>
+  <p class="subtitle">Product Requirements Document · Dashboard Module</p>
+  <div class="meta-row">
+    <span class="meta-pill pill-blue">Version 1.0</span>
+    <span class="meta-pill pill-teal">Status: Draft</span>
+    <span class="meta-pill pill-amber">Scope: Internal + External</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('overview')">Overview</button>
+    <button class="tab" onclick="show('architecture')">Asset Architecture</button>
+    <button class="tab" onclick="show('features')">Features</button>
+    <button class="tab" onclick="show('dashboard')">Dashboard Table</button>
+    <button class="tab" onclick="show('stories')">User Stories</button>
+  </div>
+
+  <div id="pane-overview" class="pane active">
+    <div class="section">
+      <p class="sec-label">Problem Statement</p>
+      <div class="card">
+        <p class="node-desc">Event asset management lacks a centralized visibility layer across booth materials, POSM, inventories, and vendor storage. Teams struggle to track availability, coordinate requests, and determine which assets are recyclable vs. deployable — causing duplication, write-offs, and missed reuse opportunities.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="sec-label">Core Modules</p>
+      <div class="grid-3">
+        <div class="metric-card">
+          <p class="metric-label">Availability</p>
+          <p class="metric-val">Real-time</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Track status across all asset types and locations</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Monitoring</p>
+          <p class="metric-val">Lifecycle</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Date-based aging alerts and recycling triggers</p>
+        </div>
+        <div class="metric-card">
+          <p class="metric-label">Requests</p>
+          <p class="metric-val">Ticketed</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">PIC-assigned, brand-linked request workflows</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="sec-label">Reuse & Recycling Flow</p>
+      <div class="flow-row">
+        <div class="flow-box">
+          <p class="flow-title">Active Asset</p>
+          <p class="flow-desc">In-use at event or in-store</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-box">
+          <p class="flow-title">Reuse Pool</p>
+          <p class="flow-desc">Flagged as no longer deployable</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-box">
+          <p class="flow-title">Material Stock</p>
+          <p class="flow-desc">Dismantled for modular construction</p>
+        </div>
+        <span class="arrow">→</span>
+        <div class="flow-box">
+          <p class="flow-title">New Modular Booth</p>
+          <p class="flow-desc">Recycled into 1×1, 2×2, or 3×3 unit</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-architecture" class="pane">
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Internal Assets</span>
+        <span class="badge">Layer 1 of 2</span>
+      </div>
+      <div class="tree">
+
+        <div class="tree-node" style="border-color:#378ADD">
+          <p class="node-title">Booth <span class="tag tag-blue" style="font-size:11px;margin-left:6px">Main Layer</span></p>
+          <p class="node-desc">Primary event structure managed in three sub-categories.</p>
+          <div class="node-children">
+            <div class="child-node">
+              <p class="child-title">Current Booths</p>
+              <p class="child-desc">Active booths currently deployed at events or stores. Divided by brand.</p>
+              <div class="grandchild-row">
+                <span class="tag tag-blue">Brand A</span>
+                <span class="tag tag-blue">Brand B</span>
+                <span class="tag tag-blue">Brand C</span>
+                <span class="tag tag-blue">Brand N…</span>
+              </div>
+            </div>
+            <div class="child-node">
+              <p class="child-title">Modular Booths</p>
+              <p class="child-desc">Standardized modular units configurable by size, built from available or recycled materials.</p>
+              <div class="grandchild-row">
+                <span class="tag tag-teal">1×1</span>
+                <span class="tag tag-teal">2×2</span>
+                <span class="tag tag-teal">3×3</span>
+              </div>
+            </div>
+            <div class="child-node">
+              <p class="child-title">Reuse Pool</p>
+              <p class="child-desc">Assets retired from events/stores that can no longer be deployed but are eligible to be dismantled and recycled as modular booth material.</p>
+              <div class="grandchild-row">
+                <span class="tag tag-amber">Recycling eligible</span>
+                <span class="tag tag-amber">Awaiting dismantling</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tree-node" style="border-color:#1D9E75">
+          <p class="node-title">POSM <span class="tag tag-teal" style="font-size:11px;margin-left:6px">Layer 2</span></p>
+          <p class="node-desc">Point-of-sale materials — banners, standees, shelf talkers, displays — tracked per brand with availability and condition status.</p>
+        </div>
+
+        <div class="tree-node" style="border-color:#7F77DD">
+          <p class="node-title">Inventories <span class="tag tag-purple" style="font-size:11px;margin-left:6px">Layer 3</span></p>
+          <p class="node-desc">Supporting event inventory items including props, furniture, tech equipment, and consumables stored internally and tracked by PIC and date.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">External Assets</span>
+        <span class="badge">Layer 2 of 2</span>
+      </div>
+      <div class="grid-2">
+        <div class="child-node">
+          <p class="child-title">Vendor Booth Storage</p>
+          <p class="child-desc">Booth structures physically stored at vendor/partner warehouses. Tracked with vendor name, capacity, and asset list.</p>
+          <div class="grandchild-row" style="margin-top:6px">
+            <span class="tag tag-green">Vendor A</span>
+            <span class="tag tag-green">Vendor B</span>
+            <span class="tag tag-green">Vendor N…</span>
+          </div>
+        </div>
+        <div class="child-node">
+          <p class="child-title">Vendor POSM Storage</p>
+          <p class="child-desc">POSM items stored at external vendor locations — useful for regional events or overflow capacity.</p>
+          <div class="grandchild-row" style="margin-top:6px">
+            <span class="tag tag-green">Vendor A</span>
+            <span class="tag tag-green">Vendor B</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-features" class="pane">
+    <div class="section">
+      <p class="sec-label">Availability Module</p>
+      <div class="card">
+        <div class="node-children">
+          <div class="child-node"><p class="child-title">Live status board</p><p class="child-desc">Real-time view of all assets — Available, In Use, Requested, or In Reuse Pool — across internal and external warehouses.</p></div>
+          <div class="child-node"><p class="child-title">Brand-level filtering</p><p class="child-desc">Filter current booths by brand to see what assets are available for upcoming activations.</p></div>
+          <div class="child-node"><p class="child-title">Modular configurator</p><p class="child-desc">View which 1×1, 2×2, or 3×3 modular units are available and what material is in the reuse pool for new builds.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="sec-label">Monitoring Module</p>
+      <div class="card">
+        <div class="node-children">
+          <div class="child-node"><p class="child-title">Date-developed tracker</p><p class="child-desc">Each asset carries a "date developed" field. System flags assets past threshold age for recycling review.</p></div>
+          <div class="child-node"><p class="child-title">Recycling pipeline</p><p class="child-desc">Automatic promotion of aged/flagged assets to Reuse Pool with PIC notification and dismantling task creation.</p></div>
+          <div class="child-node"><p class="child-title">External vendor audit</p><p class="child-desc">Monitor vendor-stored assets for condition, last-checked date, and retrieval lead time.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="sec-label">Request Module</p>
+      <div class="card">
+        <div class="node-children">
+          <div class="child-node"><p class="child-title">Asset request form</p><p class="child-desc">Teams submit requests for specific booth types, POSM, or inventories — linked to brand, event date, and required quantity.</p></div>
+          <div class="child-node"><p class="child-title">PIC assignment & approval</p><p class="child-desc">Requests route to the designated PIC for each asset type. Approval triggers reservation and status change.</p></div>
+          <div class="child-node"><p class="child-title">Request dashboard view</p><p class="child-desc">Pending, approved, and fulfilled requests visible in the main table with request count column per asset.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pane-dashboard" class="pane">
+    <p class="sec-label">Asset Table — Sample View</p>
+    <div class="filter-row">
+      <span class="filter-label">Filter:</span>
+      <select id="f-brand" onchange="filterTable()">
+        <option value="">All brands</option>
+        <option>Brand A</option>
+        <option>Brand B</option>
+        <option>Brand C</option>
+      </select>
+      <select id="f-kind" onchange="filterTable()">
+        <option value="">All asset types</option>
+        <option>Booth – Current</option>
+        <option>Booth – Modular</option>
+        <option>Booth – Reuse</option>
+        <option>POSM</option>
+        <option>Inventories</option>
+      </select>
+      <select id="f-wh" onchange="filterTable()">
+        <option value="">All warehouses</option>
+        <option>Internal</option>
+        <option>External</option>
+      </select>
+      <select id="f-status" onchange="filterTable()">
+        <option value="">All statuses</option>
+        <option>Available</option>
+        <option>In Use</option>
+        <option>Reuse Pool</option>
+        <option>Requested</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="asset-table">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Asset type</th>
+            <th>Price (IDR)</th>
+            <th>Warehouse</th>
+            <th>Date developed</th>
+            <th>PIC</th>
+            <th>Availability</th>
+            <th>Requests</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--color-text-tertiary);margin-top:10px">Sample data for illustration. Rows highlighted in amber indicate assets past 18-month review threshold.</p>
+  </div>
+
+  <div id="pane-stories" class="pane">
+    <p class="sec-label">User Stories</p>
+
+    <div class="user-story">
+      <p class="story-role">Brand Manager</p>
+      <p class="story-text">As a brand manager, I want to see all current booths assigned to my brand so I can plan which events need new or recycled assets.</p>
+    </div>
+    <div class="user-story">
+      <p class="story-role">Event Operations Lead</p>
+      <p class="story-text">As an ops lead, I want to request a 2×2 modular booth for an upcoming event and have the system auto-check material availability in the reuse pool.</p>
+    </div>
+    <div class="user-story">
+      <p class="story-role">Warehouse PIC</p>
+      <p class="story-text">As a warehouse PIC, I want to be notified when an asset's development date passes the review threshold so I can move it to the reuse pool before it degrades further.</p>
+    </div>
+    <div class="user-story">
+      <p class="story-role">Procurement Team</p>
+      <p class="story-text">As procurement, I want to view all external vendor storage slots across booth and POSM categories so I can optimize costs and reduce unnecessary vendor contracts.</p>
+    </div>
+    <div class="user-story">
+      <p class="story-role">Senior Management</p>
+      <p class="story-text">As management, I want a top-level dashboard showing total asset value, availability rate, recycling pipeline count, and pending requests across all brands.</p>
+    </div>
+
+    <hr class="divider">
+
+    <p class="sec-label">Acceptance Criteria — Key</p>
+    <div class="card">
+      <div class="node-children">
+        <div class="child-node"><p class="child-title">AC-01 — Asset table completeness</p><p class="child-desc">Every asset row must carry: brand, asset type, price, warehouse type, date developed, PIC name, availability status, and open request count.</p></div>
+        <div class="child-node"><p class="child-title">AC-02 — Reuse triggering</p><p class="child-desc">Assets with date-developed older than the configured threshold (default: 18 months) must appear flagged in the dashboard and auto-suggest transition to Reuse Pool.</p></div>
+        <div class="child-node"><p class="child-title">AC-03 — Modular size coverage</p><p class="child-desc">Modular booths must be filterable by size (1×1, 2×2, 3×3) and linked to available reuse-pool material quantities.</p></div>
+        <div class="child-node"><p class="child-title">AC-04 — External vendor visibility</p><p class="child-desc">All externally stored assets (booth and POSM) must display the vendor name in the warehouse column and be filterable separately from internal stock.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const data = [
+  { brand:"Brand A", kind:"Booth – Current", price:"45,000,000", wh:"Internal", date:"Jan 2024", pic:"Dian R.", status:"Available", requests:0 },
+  { brand:"Brand A", kind:"Booth – Current", price:"45,000,000", wh:"Internal", date:"Mar 2023", pic:"Dian R.", status:"In Use", requests:2 },
+  { brand:"Brand B", kind:"Booth – Current", price:"52,000,000", wh:"External", date:"Aug 2022", pic:"Budi S.", status:"In Use", requests:1 },
+  { brand:"Brand B", kind:"Booth – Modular", price:"18,000,000", wh:"Internal", date:"Nov 2023", pic:"Sinta W.", status:"Available", requests:3 },
+  { brand:"Brand A", kind:"Booth – Modular", price:"22,000,000", wh:"Internal", date:"Feb 2024", pic:"Sinta W.", status:"Requested", requests:2 },
+  { brand:"Brand C", kind:"Booth – Modular", price:"12,000,000", wh:"Internal", date:"Jun 2023", pic:"Sinta W.", status:"Available", requests:0 },
+  { brand:"Brand C", kind:"Booth – Reuse", price:"4,500,000", wh:"Internal", date:"Mar 2022", pic:"Eko P.", status:"Reuse Pool", requests:0 },
+  { brand:"Brand B", kind:"Booth – Reuse", price:"3,200,000", wh:"Internal", date:"Jan 2022", pic:"Eko P.", status:"Reuse Pool", requests:0 },
+  { brand:"Brand A", kind:"POSM", price:"8,750,000", wh:"Internal", date:"Sep 2023", pic:"Reni A.", status:"Available", requests:1 },
+  { brand:"Brand B", kind:"POSM", price:"6,300,000", wh:"External", date:"Apr 2023", pic:"Reni A.", status:"In Use", requests:0 },
+  { brand:"Brand C", kind:"POSM", price:"5,100,000", wh:"External", date:"Oct 2021", pic:"Reni A.", status:"Reuse Pool", requests:0 },
+  { brand:"Brand A", kind:"Inventories", price:"2,200,000", wh:"Internal", date:"Jul 2024", pic:"Hadi M.", status:"Available", requests:0 },
+  { brand:"Brand B", kind:"Inventories", price:"3,800,000", wh:"Internal", date:"Mar 2023", pic:"Hadi M.", status:"In Use", requests:1 },
+  { brand:"Brand C", kind:"Inventories", price:"1,500,000", wh:"Internal", date:"Dec 2022", pic:"Hadi M.", status:"Available", requests:0 },
+];
+
+const thresholdDate = new Date("2023-11-01");
+
+function statusClass(s) {
+  if(s==="Available") return "s-available";
+  if(s==="In Use") return "s-inuse";
+  if(s==="Reuse Pool") return "s-recycled";
+  if(s==="Requested") return "s-requested";
+  return "";
+}
+
+function isAged(dateStr) {
+  const parts = dateStr.split(" ");
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const m = months.indexOf(parts[0]);
+  const y = parseInt(parts[1]);
+  const d = new Date(y, m, 1);
+  return d < thresholdDate;
+}
+
+function renderTable(rows) {
+  const tb = document.getElementById("table-body");
+  tb.innerHTML = rows.map(r => {
+    const aged = isAged(r.date);
+    const bg = aged ? "background:rgba(250,174,100,0.08);" : "";
+    return `<tr style="${bg}">
+      <td style="font-weight:500">${r.brand}</td>
+      <td>${r.kind}</td>
+      <td style="font-variant-numeric:tabular-nums">Rp ${r.price}</td>
+      <td><span class="${r.wh==="Internal"?"wh-int":"wh-ext"}">${r.wh}</span></td>
+      <td style="font-size:12px;${aged?"color:var(--color-text-warning, #854F0B)":""}">${r.date}${aged?" ⚑":""}</td>
+      <td style="font-size:12px">${r.pic}</td>
+      <td><span class="status ${statusClass(r.status)}">${r.status}</span></td>
+      <td style="text-align:center">${r.requests > 0 ? `<span style="font-weight:500">${r.requests}</span>` : '<span style="color:var(--color-text-tertiary)">—</span>'}</td>
+    </tr>`;
+  }).join("");
+}
+
+function filterTable() {
+  const b = document.getElementById("f-brand").value;
+  const k = document.getElementById("f-kind").value;
+  const w = document.getElementById("f-wh").value;
+  const s = document.getElementById("f-status").value;
+  const filtered = data.filter(r =>
+    (!b || r.brand === b) &&
+    (!k || r.kind === k) &&
+    (!w || r.wh === w) &&
+    (!s || r.status === s)
+  );
+  renderTable(filtered);
+}
+
+function show(id) {
+  document.querySelectorAll(".pane").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("pane-"+id).classList.add("active");
+  event.target.classList.add("active");
+}
+
+renderTable(data);
+</script>

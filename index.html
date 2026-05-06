@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AssetHub Demo | EAMS</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <section class="entry-screen" id="entryScreen">
+    <div class="entry-inner">
+      <div class="entry-logo">
+        <span class="icon icon-box"></span>
+      </div>
+      <h1>AssetHub Demo</h1>
+      <p>Platform manajemen aset lengkap untuk tim internal dan vendor. Pilih mode tampilan di bawah ini untuk memulai simulasi.</p>
+
+      <div class="entry-options">
+        <button class="entry-card" data-entry="web">
+          <span class="entry-card-icon"><span class="icon icon-monitor"></span></span>
+          <strong>Web Dashboard</strong>
+          <small>Mode Internal & Admin</small>
+          <span>Akses penuh sebagai tim internal. Lihat ringkasan status, daftar aset, approval request, dan pipeline reuse.</span>
+        </button>
+
+        <button class="entry-card" data-entry="mobile">
+          <span class="entry-card-icon"><span class="icon icon-phone"></span></span>
+          <strong>Mobile App</strong>
+          <small>Mode User / Lapangan</small>
+          <span>Simulasi aplikasi mobile untuk user event. Cek aset tersedia, isi kebutuhan event, dan kirim request aset.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell hidden" id="webApp">
+    <aside class="sidebar">
+      <div class="brand-mark">
+        <span class="brand-icon">AH</span>
+        <div>
+          <strong>AssetHub</strong>
+          <small>Internal control tower</small>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Main">
+        <button class="nav-item active" data-section="dashboard">
+          <span class="icon icon-dashboard"></span>
+          Dashboard
+        </button>
+        <button class="nav-item" data-section="assets">
+          <span class="icon icon-box"></span>
+          Assets
+        </button>
+        <button class="nav-item" data-section="requests">
+          <span class="icon icon-ticket"></span>
+          Requests
+        </button>
+        <button class="nav-item" data-section="recycle">
+          <span class="icon icon-loop"></span>
+          Reuse Pool
+        </button>
+        <button class="nav-item" data-section="vendors">
+          <span class="icon icon-warehouse"></span>
+          Vendors
+        </button>
+      </nav>
+
+      <div class="sidebar-panel">
+        <span class="panel-label">Review threshold</span>
+        <strong>18 months</strong>
+        <p>Assets older than the threshold are pushed into PIC review.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <button class="back-link" data-entry="home">Back to demo entry</button>
+          <p class="eyebrow">Event Marketing & Operations</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="admin-controls" aria-label="Admin controls">
+            <select id="roleSelect" aria-label="Role">
+              <option>Super Admin</option>
+              <option>Admin</option>
+            </select>
+            <div class="department-select">
+              <button id="departmentButton" aria-expanded="false" aria-haspopup="listbox">
+                <span id="departmentLabel">All Department</span>
+                <span class="chevron"></span>
+              </button>
+              <div class="department-menu hidden" id="departmentMenu" role="listbox">
+                <button class="selected" data-department="All Department" role="option" aria-selected="true">All Department</button>
+                <button data-department="Commercial" role="option">Commercial</button>
+                <button data-department="Marketing" role="option">Marketing</button>
+              </div>
+            </div>
+          </div>
+          <label class="search">
+            <span class="icon icon-search"></span>
+            <input id="searchInput" type="search" placeholder="Search asset, brand, PIC">
+          </label>
+          <button class="ghost-btn" id="syncBtn">
+            <span class="icon icon-sync"></span>
+            Sync
+          </button>
+          <button class="primary-btn" id="accessRequestBtn">
+            <span class="icon icon-plus"></span>
+            Access request
+          </button>
+        </div>
+      </header>
+
+      <section class="web-section active" id="section-dashboard">
+        <section class="permission-panel" aria-label="Role task definition">
+          <div>
+            <p class="eyebrow">Access mode</p>
+            <h2 id="permissionTitle">Super Admin · All Department</h2>
+            <p id="permissionDescription">Can manage every dashboard module, all departments, assets, requests, reuse flow, vendor visibility, and user permissions.</p>
+          </div>
+          <div class="permission-task-grid" id="permissionTasks"></div>
+        </section>
+
+        <section class="summary-grid" aria-label="Dashboard summary">
+          <article class="metric-card">
+            <span class="metric-label">Total asset value</span>
+            <strong id="totalValue">Rp 0</strong>
+            <small>Across internal and vendor warehouses</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Availability rate</span>
+            <strong id="availabilityRate">0%</strong>
+            <small>Target: greater than 85%</small>
+          </article>
+          <article class="metric-card warning">
+            <span class="metric-label">Reuse candidates</span>
+            <strong id="reuseCount">0</strong>
+            <small>Past development threshold</small>
+          </article>
+          <article class="metric-card action">
+            <span class="metric-label">Open requests</span>
+            <strong id="openRequests">0</strong>
+            <small>PIC response target: under 24h</small>
+          </article>
+        </section>
+
+        <section class="dashboard-grid">
+          <div class="content-panel">
+            <div class="panel-header compact">
+              <div>
+                <p class="eyebrow">Control tower</p>
+                <h2>Operational health</h2>
+              </div>
+            </div>
+            <div class="health-list">
+              <div>
+                <span>Internal stock coverage</span>
+                <strong>74%</strong>
+                <i style="--bar:74%"></i>
+              </div>
+              <div>
+                <span>Vendor audit completion</span>
+                <strong>89%</strong>
+                <i style="--bar:89%"></i>
+              </div>
+              <div>
+                <span>Reuse conversion target</span>
+                <strong>61%</strong>
+                <i style="--bar:61%"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-panel">
+            <div class="panel-header compact">
+              <div>
+                <p class="eyebrow">Lifecycle</p>
+                <h2>Reuse pipeline</h2>
+              </div>
+            </div>
+            <div class="pipeline">
+              <div class="pipe-step done"><span>Active asset</span><strong>64</strong></div>
+              <div class="pipe-step active"><span>PIC review</span><strong>12</strong></div>
+              <div class="pipe-step"><span>Dismantling</span><strong>7</strong></div>
+              <div class="pipe-step"><span>Material stock</span><strong>31</strong></div>
+            </div>
+          </div>
+
+          <div class="content-panel dashboard-wide">
+            <div class="panel-header compact">
+              <div>
+                <p class="eyebrow">Latest activity</p>
+                <h2>Request and asset movements</h2>
+              </div>
+            </div>
+            <div class="activity-list" id="activityList"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="web-section" id="section-assets">
+        <div class="content-panel board-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow" id="assetContextEyebrow">Asset workspace</p>
+              <h2 id="assetContextTitle">Inventory, availability, and ownership</h2>
+            </div>
+            <div class="segmented" role="tablist" aria-label="View">
+              <button class="segment active" data-view="table">Table</button>
+              <button class="segment" data-view="cards">Cards</button>
+            </div>
+          </div>
+
+          <p class="context-description" id="assetContextDescription">Full asset list for internal teams to monitor ownership, stock location, availability, open requests, and estimated value.</p>
+
+          <div class="context-grid" id="assetContextStats"></div>
+
+          <div class="filters">
+            <select id="brandFilter" aria-label="Brand filter">
+              <option value="">All brands</option>
+              <option>Wardah</option>
+              <option>KAHF</option>
+              <option>OMG</option>
+            </select>
+            <select id="typeFilter" aria-label="Asset type filter">
+              <option value="">All asset types</option>
+              <option>Booth - Current</option>
+              <option>Booth - Modular</option>
+              <option>Booth - Reuse</option>
+              <option>POSM</option>
+              <option>Inventories</option>
+            </select>
+            <select id="warehouseFilter" aria-label="Warehouse filter">
+              <option value="">All warehouses</option>
+              <option>Internal</option>
+              <option>External</option>
+            </select>
+            <select id="statusFilter" aria-label="Status filter">
+              <option value="">All statuses</option>
+              <option>Available</option>
+              <option>In Use</option>
+              <option>Reuse Pool</option>
+              <option>Requested</option>
+            </select>
+          </div>
+
+          <div class="table-wrap" id="tableView">
+            <table>
+              <thead>
+                <tr>
+                  <th>Asset</th>
+                  <th>Brand</th>
+                  <th>Warehouse</th>
+                  <th>Date developed</th>
+                  <th>PIC</th>
+                  <th>Status</th>
+                  <th>Requests</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="assetRows"></tbody>
+            </table>
+          </div>
+
+          <div class="asset-card-grid hidden" id="cardView"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <section class="mobile-demo hidden" id="mobileApp">
+    <button class="back-link mobile-back" data-entry="home">Back to demo entry</button>
+    <div class="mobile-copy">
+      <p class="eyebrow">Mobile App</p>
+      <h1>Request assets from the field</h1>
+      <p>User event bisa pilih aset, isi detail acara, dan submit request ke PIC tanpa membuka dashboard admin.</p>
+    </div>
+    <div class="phone phone-standalone">
+      <div class="phone-bar"></div>
+      <div class="mobile-head">
+        <div>
+          <span>AssetHub Mobile</span>
+          <strong id="mobileScreenTitle">Request Asset</strong>
+        </div>
+        <button class="round-btn" id="mobileScanBtn" aria-label="Scan asset">
+          <span class="icon icon-scan"></span>
+        </button>
+      </div>
+      <div class="mobile-tabs">
+        <button class="active" data-mobile-tab="request">Request</button>
+        <button data-mobile-tab="available">Available</button>
+        <button data-mobile-tab="history">History</button>
+      </div>
+
+      <div class="mobile-screen active" id="mobile-request">
+        <label class="mobile-field">Asset needed
+          <select id="mobileAssetSelect"></select>
+        </label>
+        <label class="mobile-field">Event name
+          <input id="mobileEventName" value="Mall Activation - Jakarta">
+        </label>
+        <label class="mobile-field">Event date
+          <input id="mobileEventDate" type="date" value="2026-05-20">
+        </label>
+        <label class="mobile-field">Quantity
+          <input id="mobileQty" type="number" min="1" value="1">
+        </label>
+        <button class="primary-btn mobile-submit" id="mobileSubmitRequest">
+          <span class="icon icon-plus"></span>
+          Submit request
+        </button>
+        <div class="mobile-confirm hidden" id="mobileConfirm">Request sent to PIC. Status: Requested.</div>
+      </div>
+
+      <div class="mobile-screen" id="mobile-available">
+        <div class="mobile-stat">
+          <span>Available now</span>
+          <strong id="mobileAvailable">0</strong>
+        </div>
+        <div id="mobileCards" class="mobile-cards"></div>
+      </div>
+
+      <div class="mobile-screen" id="mobile-history">
+        <div class="mobile-history-list" id="mobileHistory"></div>
+      </div>
+
+      <div class="mobile-nav">
+        <button class="active" data-mobile-tab="request"><span class="icon icon-plus"></span></button>
+        <button data-mobile-tab="available"><span class="icon icon-box"></span></button>
+        <button data-mobile-tab="history"><span class="icon icon-ticket"></span></button>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="request-dialog" id="accessDialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Admin access</p>
+          <h2>Grant admin access</h2>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Close">
+          <span class="icon icon-close"></span>
+        </button>
+      </div>
+      <div class="form-grid">
+        <label>Admin name
+          <input id="accessAdminName" value="Admin Commercial Team">
+        </label>
+        <label>Department
+          <select id="accessDepartment">
+            <option>Commercial</option>
+            <option>Marketing</option>
+            <option>All Department</option>
+          </select>
+        </label>
+        <label>Role to assign
+          <select id="accessRole">
+            <option>Admin</option>
+            <option>Super Admin</option>
+          </select>
+        </label>
+        <label>Access duration
+          <select id="accessDuration">
+            <option>Permanent</option>
+            <option>30 days</option>
+            <option>90 days</option>
+          </select>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" checked>
+          Dashboard overview
+        </label>
+        <label class="check-row">
+          <input type="checkbox" checked>
+          Asset management
+        </label>
+        <label class="check-row">
+          <input type="checkbox" checked>
+          Request approval
+        </label>
+        <label class="check-row">
+          <input type="checkbox">
+          User access control
+        </label>
+        <label class="wide">PIC notes
+          <textarea id="accessNotes" rows="4">Grant access based on selected department scope and requested responsibility.</textarea>
+        </label>
+      </div>
+      <div class="access-result hidden" id="accessResult">Access granted. The selected admin can now work inside the assigned scope.</div>
+      <menu>
+        <button class="ghost-btn" value="cancel">Cancel</button>
+        <button class="primary-btn" id="grantAccessBtn" value="default">Grant access</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
